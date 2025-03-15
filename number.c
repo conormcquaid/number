@@ -1,5 +1,5 @@
 
-// gcc  --std=c99 -g number.c -onumb -lm
+// gcc  --std=c99 -fsanitize=address,undefined -Wall -Wextra -g number.c -onumb -lm
 
 
 #include <math.h>
@@ -9,11 +9,13 @@
 #include <errno.h>
 #include <strings.h>
 
+typedef unsigned int uint;
+
 // float/double epsilon
 // close enough is good enough
 double ɛ = 1E-6;
 
-char* ordinal_decorator(unsigned int n){
+char* ordinal_decorator(uint n){
 /*	// unicode is surprisingly bad at usperscripts for ordinals
    // spread over different character blocks, etc
    // A: unicode provides glyphs. superscripting is text markup
@@ -34,14 +36,14 @@ char* ordinal_decorator(unsigned int n){
 	
 }
 
-unsigned int is_factor(unsigned int n, unsigned int f){
+uint is_factor(uint n, uint f){
 
-	unsigned int r = n / f;
+	uint r = n / f;
 	if( n == r * f ) return r;
 	return 0;
 }
 
-int is_triangular(unsigned int n){
+uint is_triangular(uint n){
 
 	double x = (sqrt(8 * n + 1) - 1) / 2;
 	if( fabs(x - round(x) ) < ɛ )
@@ -50,7 +52,7 @@ int is_triangular(unsigned int n){
 		return 0;
 }
 
-int is_pentagonal(unsigned int n){
+uint is_pentagonal(uint n){
 
 	double x = (sqrt(24 * n + 1) + 1) / 6;
 	if( fabs(x - round(x) ) < ɛ )
@@ -59,7 +61,7 @@ int is_pentagonal(unsigned int n){
 		return 0;
 }
 
-int is_hexagonal(unsigned int n){
+uint is_hexagonal(uint n){
 
 	double x = (sqrt(8 * n + 1) + 1) / 4;
 	if( fabs(x - round(x) ) < ɛ )
@@ -68,7 +70,7 @@ int is_hexagonal(unsigned int n){
 		return 0;
 }
 
-int is_centered_hexagonal(unsigned int n){
+uint is_centered_hexagonal(uint n){
 
 	double x = (sqrt(12 * n - 3) + 3 ) / 6;
 	if( fabs(x - round(x) ) < ɛ )
@@ -77,12 +79,12 @@ int is_centered_hexagonal(unsigned int n){
 		return 0;
 }
 
-int is_tetrahedral(unsigned int n){
+uint is_tetrahedral(uint n){
 
 	double x = exp(log(3 * n + sqrt( 9*n*n - (1 / 27.0))) / 3.0) + \
 	           exp(log(3 * n - sqrt( 9*n*n - (1 / 27.0))) / 3.0) - 1;
 	
-	volatile double Teterror = fabs(x - round(x) );
+	volatile double Teterror = fabs(x - round(x) ); // make Teterror visible to gdn
 	           
 	if( Teterror < ɛ )
 		return round(x);
@@ -90,24 +92,27 @@ int is_tetrahedral(unsigned int n){
 		return 0;
 }
 
-int make_primes(unsigned int n, unsigned int* p_list){
+/*
+	Returns a list of all primes less than n in array p_list
+   Caller is responsible for ensuring that p_list is an array large enough to store all primes less than n
+*/
+uint make_primes(uint n, uint* p_list){
 
 	// sieve of eratosthenes
-	unsigned int max_prime = n;
-	unsigned int* p = malloc(max_prime * sizeof(unsigned int));
+	uint max_prime = n;
+	uint* p = malloc(max_prime * sizeof(uint));
 	if(!p) {return -1; /* insufficient memory to calculate */ }
 	
-	/*explicit_*/bzero(p, max_prime*sizeof(unsigned int));
+	/*explicit_*/bzero(p, max_prime*sizeof(uint));
 	
-	unsigned int nn = n;
-	int idx = 0;
-	for(int i = 2; i <= max_prime ; i++){
+	uint idx = 0;
+	for(uint i = 2; i <= max_prime ; i++){
 	
 		if(p[i] == 0){
 			// i is prime; 
 			p_list[idx++] = i;
 			// mark all multiples of i
-			for(int j = 2*i; j < max_prime; j += i){ 
+			for(uint j = 2*i; j < max_prime; j += i){ 
 				p[j] = 1; 
 			}
 
@@ -117,26 +122,26 @@ int make_primes(unsigned int n, unsigned int* p_list){
 	return idx - 1; 
 }
 
-char * prime_decomposition(unsigned int n){
+char * prime_decomposition(uint n){
 
 // may decide to return 'free'able string rather than printf as a side effect
 
 	if(n < 2) return NULL;
 	
-	unsigned int max_prime = round(n/2);
-	unsigned int* p = malloc(max_prime * sizeof(unsigned int));
+	uint max_prime = round(n/2);
+	uint* p = malloc(max_prime * sizeof(uint));
 	if(!p) {return NULL; /* insufficient memory to calculate */ }
 	
-	/*explicit_*/bzero(p, max_prime*sizeof(unsigned int));
+	/*explicit_*/bzero(p, max_prime*sizeof(uint));
 	
 	// sieve of eratosthenes
 	printf("Prime decomposition: { ");
-	unsigned int nn = n;
-	for(int i = 2; i <= max_prime ; i++){
+	uint nn = n;
+	for(uint i = 2; i <= max_prime ; i++){
 	
 		if(p[i] == 0){
 			// i is prime; mark all multiples of i
-			for(int j = 2*i; j < max_prime; j += i){ 
+			for(uint j = 2*i; j < max_prime; j += i){ 
 				p[j] = 1; 
 			}
 			// remove every instance of i as a factor
@@ -159,12 +164,12 @@ char * prime_decomposition(unsigned int n){
 }
 
 
-unsigned int is_nth_root(unsigned int n, unsigned int power){
+uint is_nth_root(uint n, uint power){
 
-	unsigned int root = round(exp(log( (double)n ) / ( (double)power)));   
-	unsigned int candidate = root;
+	uint root = round(exp(log( (double)n ) / ( (double)power)));   
+	uint candidate = root;
 	
-	for(int i = 0; i < power-1; i++){
+	for(uint i = 0; i < power-1; i++){
 	
 		candidate *= root;
 	
@@ -175,13 +180,13 @@ unsigned int is_nth_root(unsigned int n, unsigned int power){
 
 }
 
-int factorize(unsigned int n){
+uint factorize(uint n){
 
-	unsigned int factor_sum = 0;
+	uint factor_sum = 0;
 	if( n == 1 ) return 0; //trivial
 	
 	printf("Proper Factors: ");
-	for(int i = 1; i<= n/2; i++){
+	for(uint i = 1; i<= n/2; i++){
 	
 		if(is_factor(n, i)) { 
 			printf("%d ", i); 
@@ -207,13 +212,13 @@ int main( int argc, [[maybe_unused]] char* argv[argc+1]){
 	if(argc < 2){ usage(argv[0]); exit(0); }
 
 	errno = 0;
-	unsigned int target = strtoul(argv[1], NULL, 10);
+	uint target = strtoul(argv[1], NULL, 10);
 	if(errno){ perror("Could not interpret input as a number"); }
 
-	unsigned int root;	
+	uint root;	
 	
 	// perfection/primality
-	unsigned int factor_sum = factorize(target);
+	uint factor_sum = factorize(target);
 	if(target == factor_sum){
 		
 		printf("Perfect number\n");		
@@ -230,11 +235,11 @@ int main( int argc, [[maybe_unused]] char* argv[argc+1]){
 	}
 	
 	// figurative numbers
-	if(root = is_triangular(target))  printf("%d%s Triangular number\n",  root, ordinal_decorator(root));
-	if(root = is_pentagonal(target))  printf("%d%s Pentagonal number\n",  root, ordinal_decorator(root));
-	if(root = is_hexagonal(target))   printf("%d%s Hexagonal number\n",   root, ordinal_decorator(root));
-	if(root = is_tetrahedral(target)) printf("%d%s Tetrahedral number\n", root, ordinal_decorator(root));
-	if(root = is_centered_hexagonal(target))   printf("%d%s Centered Hexagonal number\n",   root, ordinal_decorator(root));
+	if((root = is_triangular(target)))  printf("%d%s Triangular number\n",  root, ordinal_decorator(root));
+	if((root = is_pentagonal(target)))  printf("%d%s Pentagonal number\n",  root, ordinal_decorator(root));
+	if((root = is_hexagonal(target)))   printf("%d%s Hexagonal number\n",   root, ordinal_decorator(root));
+	if((root = is_tetrahedral(target))) printf("%d%s Tetrahedral number\n", root, ordinal_decorator(root));
+	if((root = is_centered_hexagonal(target)))   printf("%d%s Centered Hexagonal number\n",   root, ordinal_decorator(root));
 	
 	// powers
 	if( (root = is_nth_root(target, 2))){ printf("%d\u00B2\n", root); }
@@ -248,14 +253,16 @@ int main( int argc, [[maybe_unused]] char* argv[argc+1]){
 	
 	//sum of squares / cubes
 	
-	unsigned int n_squares = round(exp(log( (double)target ) / ( 2.0)));
-	for(int i = 1; i <= n_squares; i++){
-		for(int j = i; j <= n_squares; j++){
-			if(target == i*i + j*j){
+	uint n_squares = round(exp(log( (double)target ) / ( 2.0)));
+	uint squares[n_squares+1];
+	for(uint i = 0; i < n_squares +1; squares[i] = i*i, i++){ /* */}
+	for(uint i = 1; i <= n_squares; i++){
+		for(uint j = i; j <= n_squares; j++){
+			if(target == squares[i] + squares[j]){
 				printf("%d\u00b2 + %d\u00b2\n", i, j);
 			}
-			for(int k = j; k <= n_squares; k++){
-				if(target == i*i + j*j+ k*k){
+			for(uint k = j; k <= n_squares; k++){
+				if(target == squares[i] + squares[j] + squares[k]){
 					printf("%d\u00b2 + %d\u00b2 + %d\u00b2\n", i, j,k);
 				}
 			}	
@@ -263,17 +270,17 @@ int main( int argc, [[maybe_unused]] char* argv[argc+1]){
 	}
 
 	
-	unsigned int n_cubes = round(exp(log( (double)target ) / ( 3.0)));
-	unsigned int cubes[n_cubes+1];
-	for(int i = 0; i < n_cubes+1; cubes[i++] = i*i*i){ /* */ }
+	uint n_cubes = round(exp(log( (double)target ) / ( 3.0)));
+	uint cubes[n_cubes+1];
+	for(uint i = 0; i < n_cubes+1; cubes[i] = i*i*i, i++){ /* */ }
 	
 	//printf("there are [%d] cubes less than/equal to target\n", n_cubes);
-	for(int i = 1; i <= n_cubes; i++){
-		for(int j = i; j <= n_cubes; j++){
+	for(uint i = 1; i <= n_cubes; i++){
+		for(uint j = i; j <= n_cubes; j++){
 			if(target == cubes[i] + cubes[j]){
 				printf("%d\u00b3 + %d\u00b3\n", i, j);
 			}
-			for(int k = j; k <= n_cubes; k++){
+			for(uint k = j; k <= n_cubes; k++){
 				if(target == cubes[i] + cubes[j] + cubes[k]){
 					printf("%d\u00b3 + %d\u00b3 + %d\u00b3\n", i, j, k);
 				}
@@ -286,27 +293,27 @@ int main( int argc, [[maybe_unused]] char* argv[argc+1]){
 	// Goldbach: for n > 2 && n%2 == 0, n = p1 + p2
 
 	// allocate enough ints to store primes less than target
-	unsigned int* p_list;
+	uint* p_list;
 	// x/ln(x) sucks, especially for low x. 
 	double pi_n = 1.1 * target / floor(log(target + 0.0));
-	p_list = malloc(sizeof(unsigned int) * pi_n);
-	bzero(p_list, (int)pi_n * sizeof(unsigned int));
+	p_list = malloc(sizeof(uint) * pi_n);
+	bzero(p_list, (int)pi_n * sizeof(uint));
 	
-	int np = make_primes(target, p_list);	
+	uint np = make_primes(target, p_list);	
 	
 	printf("<Goldbach>\n");
 	if(target > 2){
 	
-		for(int i = 0; i < np; i++){
+		for(uint i = 0; i < np; i++){
 		
-			for(int j = i; j < np; j++){
+			for(uint j = i; j < np; j++){
 			
 				if((target % 2 == 0) && target == p_list[i] + p_list[j]){
 				 	printf("\t%d + %d\n", p_list[i], p_list[j]);
 				}
 				// weak Goldbach
 				// Every integer greater than 5 can be written as the sum of three primes.
-				for(int k = j; k < np; k++){
+				for(uint k = j; k < np; k++){
 				
 					if(target > 5 && target == p_list[i] + p_list[j] + p_list[k]){
 				 		printf("\t%d + %d + %d\n", p_list[i], p_list[j], p_list[k]);
