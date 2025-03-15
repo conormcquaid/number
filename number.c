@@ -1,3 +1,7 @@
+
+// gcc  --std=c99 -g number.c -onumb -lm
+
+
 #include <math.h>
 #include <stdio.h>
 #include <stdint.h>
@@ -10,20 +14,24 @@
 double ɛ = 1E-6;
 
 char* ordinal_decorator(unsigned int n){
-	
+/*	// unicode is surprisingly bad at usperscripts for ordinals
+   // spread over different character blocks, etc
+   // A: unicode provides glyphs. superscripting is text markup
+   
 	switch(n){
 		case 1:  return "\u02e2\u1d57"; break;
 		case 2:  return "\u207f\u1d48"; break;
-		case 3:  return "\u02b3\u1df8"; break;
+		case 3:  return "\u02b3\u1d48"; break;
 		default: return "\u1d57\u02b0"; 
 	}
-/*	switch(n){
+	*/
+	switch(n){
 		case 1:  return "st"; break;
 		case 2:  return "nd"; break;
 		case 3:  return "rd"; break;
 		default: return "th"; 
 	}
-	*/
+	
 }
 
 unsigned int is_factor(unsigned int n, unsigned int f){
