@@ -152,6 +152,7 @@ char * prime_decomposition(uint n){
 					nn = nn/i;
 					if(nn != 1){ printf(" * "); }else{
 						printf(" }\n");
+						free(p);
 						return NULL;
 					}
 
@@ -160,6 +161,7 @@ char * prime_decomposition(uint n){
 	
 	
 	}
+	free(p);
 	return NULL;
 }
 
