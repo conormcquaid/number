@@ -236,7 +236,7 @@ void parse_opts( int argc, char* argv[]){
 	else{
 
 		int opt;
-		while ((opt = getopt(argc, argv, "fpscSC")) != -1) {
+		while ((opt = getopt(argc, argv, "afpscSC")) != -1) {
 
 			switch (opt) {
 				case 'a':
