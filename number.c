@@ -240,7 +240,7 @@ void parse_opts( int argc, char* argv[]){
 
 			switch (opt) {
 				case 'a':
-					options.bits.figurative = -1U;
+					options.all_bits = -1U;
 					break;
 				case 'f':
 					options.bits.figurative = 1;
