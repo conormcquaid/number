@@ -131,7 +131,7 @@ char * prime_decomposition(u32 n){
 	/*explicit_*/bzero(p, max_prime*sizeof(u32));
 	
 	// sieve of eratosthenes
-	printf("Prime decomposition: { ");
+	printf("Prime decomposition: ");
 	u32 nn = n;
 	for(u32 i = 2; i <= max_prime ; i++){
 	
@@ -144,19 +144,21 @@ char * prime_decomposition(u32 n){
 			
 			while(is_factor(nn, i)){
 
-					printf("%d", i); 
+					printf("%d ", i); 
 					nn = nn/i;
-					if(nn != 1){ printf(" * "); }else{
-						printf(" }\n");
-						free(p);
-						return NULL;
-					}
+					// if(nn != 1){ printf(" * "); }else{
+					// 	printf("\n");
+					// 	free(p);
+					// 	return NULL;
+					// }
 
 			}
+			
 		}
 	
 	
 	}
+	printf("\n");
 	free(p);
 	return NULL;
 }
@@ -197,7 +199,6 @@ u32 factorize(u32 n){ //}, int_list* factors){
 union options{
 	u32 all_bits;
 	struct optbits{
-
 		int prime       :1;
 		int figurative  :1;
 		int sum2squares :1;
@@ -212,6 +213,7 @@ union options{
 void usage(char* progname){
 
 	printf("Usage: %s [options] <integer>\n", progname);
+	printf("    -a   apply all. Same as supplying no options\n");
 	printf("    -p   primality / factors / prime decomposition  \n");
 	printf("    -f   figurative numbers, e.g. triangular, hexagonal \n");
 	printf("    -s   is sum of two squares  \n");
@@ -237,6 +239,9 @@ void parse_opts( int argc, char* argv[]){
 		while ((opt = getopt(argc, argv, "fpscSC")) != -1) {
 
 			switch (opt) {
+				case 'a':
+					options.bits.figurative = -1U;
+					break;
 				case 'f':
 					options.bits.figurative = 1;
 					break;
