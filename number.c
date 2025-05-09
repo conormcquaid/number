@@ -294,7 +294,7 @@ void do_powers(u32 target){
 void do_squares(u32 target){
 	u32 n_squares = round(exp(log( (double)target ) / ( 2.0)));
 	u32 squares[n_squares+1];
-	for(u32 i = 0; i < n_squares +1; squares[i] = i*i, i++){ /* */}
+	for(u32 i = 0; i < n_squares +1; squares[i] = i*i, i++){ /* generate squares < N */}
 	for(u32 i = 1; i <= n_squares; i++){
 		for(u32 j = i; j <= n_squares; j++){
 			if(options.bits.sum2squares && target == squares[i] + squares[j]){
@@ -312,7 +312,7 @@ void do_squares(u32 target){
 void do_cubes(u32 target){
 	u32 n_cubes = round(exp(log( (double)target ) / ( 3.0)));
 	u32 cubes[n_cubes+1];
-	for(u32 i = 0; i < n_cubes+1; cubes[i] = i*i*i, i++){ /* */ }		
+	for(u32 i = 0; i < n_cubes+1; cubes[i] = i*i*i, i++){ /* generate cubes < N */ }		
 	//printf("there are [%d] cubes less than/equal to target\n", n_cubes);
 	for(u32 i = 1; i <= n_cubes; i++){
 		for(u32 j = i; j <= n_cubes; j++){
